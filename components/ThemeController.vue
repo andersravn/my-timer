@@ -1,7 +1,12 @@
 <template>
-  <select class="select w-full max-w-xs" v-model="colorMode.preference">
+  <select
+    class="select select-sm w-full max-w-xs"
+    v-model="colorMode.preference"
+  >
     <option disabled selected>Theme</option>
-    <option v-for="theme of themes" :key="theme">{{ theme }}</option>
+    <option v-for="theme of themes" :key="theme">
+      {{ theme }}
+    </option>
   </select>
 </template>
 

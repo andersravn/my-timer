@@ -9,4 +9,12 @@ export default defineNuxtConfig({
     classSuffix: "",
   },
   tailwindcss: { exposeConfig: true },
+  supabase: {
+    redirectOptions: {
+      login: "/login",
+      callback: "/confirm",
+      exclude: ["/"],
+      cookieRedirect: true,
+    },
+  },
 });
