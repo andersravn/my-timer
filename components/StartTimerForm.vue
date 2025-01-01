@@ -25,7 +25,12 @@
 import { type TimeEntry } from "~/types/timer.types";
 const description = ref("");
 const timer = ref<TimeEntry | null | undefined>(null);
-const { createNewTimeEntry, stopTimer, activeTimeEntry } = useTimeEntries();
+const {
+  createNewTimeEntry,
+  stopTimer,
+  activeTimeEntry,
+  optimisticUpdateLatestTimeEntry,
+} = useTimeEntries();
 
 const emit = defineEmits(["stopTimer"]);
 
@@ -46,7 +51,9 @@ const handleFormSubmit = async () => {
         description: description.value,
         endTime: new Date().toISOString(),
       });
+      optimisticUpdateLatestTimeEntry(timer.value);
       timer.value = null;
+      description.value = "";
       emit("stopTimer");
     } catch (error) {
       console.error(error);

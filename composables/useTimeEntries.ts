@@ -1,3 +1,5 @@
+import type { TimeEntry } from "~/types/timer.types";
+
 export function useTimeEntries() {
   const client = useSupabaseClient();
   const user = useSupabaseUser();
@@ -16,6 +18,11 @@ export function useTimeEntries() {
       }
     }
   );
+
+  const optimisticUpdateLatestTimeEntry = (newTimeEntry: TimeEntry) => {
+    if (!timeEntries.value) return;
+    timeEntries.value = [newTimeEntry, ...timeEntries.value];
+  };
 
   const { data: activeTimeEntry } = useAsyncData(
     "active_time_entry",
@@ -129,5 +136,6 @@ export function useTimeEntries() {
     setDescription,
     activeTimeEntry,
     stopTimer,
+    optimisticUpdateLatestTimeEntry,
   };
 }
