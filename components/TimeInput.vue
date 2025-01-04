@@ -3,6 +3,7 @@
     type="text"
     class="w-[50px] p-1"
     :value="formatValue()"
+    ref="input"
     @blur="emitValue"
   />
 </template>
@@ -11,6 +12,11 @@
 const props = defineProps({
   modelValue: String,
   modelModifiers: { default: { formatdate: false } },
+});
+
+const inputRef = useTemplateRef("input");
+defineExpose({
+  inputRef,
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -42,11 +48,9 @@ function emitValue(e: any) {
 function formatValue() {
   if (props.modelModifiers["formatdate"] && props.modelValue) {
     const date = new Date(props.modelValue);
-    return (
-      String(date.getHours()).padStart(2, "0") +
-      ":" +
-      String(date.getMinutes()).padStart(2, "0")
-    );
+    return `${String(date.getHours()).padStart(2, "0")}:${String(
+      date.getMinutes()
+    ).padStart(2, "0")}`;
   }
 
   return props.modelValue;

@@ -9,11 +9,21 @@
       class="input input-bordered w-full"
       placeholder="Description..."
     />
-    <CountUp
-      v-if="timer?.start_time && !timer?.end_time"
-      :start-time="timer?.start_time"
-    />
-    <div v-else>00:00:00</div>
+    <div class="w-[68px] flex-shrink-0">
+      <TimeInput
+        v-if="timer?.start_time && toggleTimerInput"
+        ref="timerInputRef"
+        @update:model-value="updateStartTime"
+        v-model.formatdate="timer.start_time"
+      />
+      <CountUp
+        v-else-if="timer?.start_time && !timer?.end_time && !toggleTimerInput"
+        ref="countUpRef"
+        tabindex="0"
+        :start-time="timer?.start_time"
+      />
+      <div v-else>00:00:00</div>
+    </div>
     <button class="btn btn-primary" type="submit">
       <span v-if="timer?.start_time && !timer?.end_time">Stop</span>
       <span v-else>Start</span>
@@ -30,7 +40,26 @@ const {
   stopTimer,
   activeTimeEntry,
   optimisticUpdateLatestTimeEntry,
+  setStartTime,
 } = useTimeEntries();
+
+const timerInputRef = useTemplateRef("timerInputRef");
+const countUpRef = ref();
+const toggleTimerInput = ref(false);
+const { focused: countUpFocused } = useFocus(countUpRef);
+
+watch(
+  countUpFocused,
+  (value) => {
+    if (value) {
+      toggleTimerInput.value = true;
+      useTimeoutFn(() => {
+        timerInputRef.value?.inputRef?.focus();
+      }, 1);
+    }
+  },
+  { immediate: true }
+);
 
 const emit = defineEmits(["stopTimer"]);
 
@@ -70,4 +99,11 @@ const handleFormSubmit = async () => {
     }
   }
 };
+
+function updateStartTime(value: string) {
+  if (timer.value) {
+    setStartTime({ id: timer.value.id, startTime: value });
+  }
+  toggleTimerInput.value = false;
+}
 </script>
