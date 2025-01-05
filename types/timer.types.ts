@@ -1,8 +1,11 @@
-export type TimeEntry = {
+export type TimeEntry = TimeEntryBase & {
   created_at: string;
-  description: string | null;
-  end_time: string | null;
-  id: number;
-  start_time: string | null;
   user_id: string | null;
+};
+
+export type TimeEntryBase = {
+  id: number;
+  description: string | null;
+  start_time: string | null;
+  end_time: string | null;
 };

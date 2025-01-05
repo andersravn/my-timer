@@ -1,24 +1,28 @@
 <template>
-  <form class="mx-2">
+  <form class="flex justify-between items-center space-x-2">
     <input
-      class="input"
       type="text"
-      v-model="timeEntry.description"
+      class="w-full input input-xs sm:input-sm"
+      :value="timeEntry.description"
       @blur="updateDescription"
       placeholder="No description"
     />
-    <TimeInput
-      v-if="timeEntry.start_time"
-      @update:model-value="updateStartTime"
-      v-model.formatdate="timeEntry.start_time"
-    />
-    -
-    <TimeInput
-      v-if="timeEntry.end_time"
-      @update:model-value="updateEndTime"
-      v-model.formatdate="timeEntry.end_time"
-    />
-    {{ duration }}
+    <div class="flex space-x-2 flex-nowrap">
+      <TimeInput
+        v-if="timeEntry.start_time"
+        @update:model-value="updateStartTime"
+        v-model.formatdate="timeEntry.start_time"
+      />
+      <div>-</div>
+      <TimeInput
+        v-if="timeEntry.end_time"
+        @update:model-value="updateEndTime"
+        v-model.formatdate="timeEntry.end_time"
+      />
+    </div>
+    <div class="text-xs">
+      {{ duration }}
+    </div>
   </form>
 </template>
 
@@ -26,7 +30,7 @@
 import { type TimeEntry } from "~/types/timer.types";
 const props = defineProps({
   timeEntry: {
-    type: Object as PropType<TimeEntry>,
+    type: Object as PropType<Partial<TimeEntry>>,
     required: true,
   },
 });
@@ -42,20 +46,28 @@ const duration = computed(() => {
   }
 });
 
-function updateDescription() {
-  if (props.timeEntry && props.timeEntry.id && props.timeEntry.description) {
+function updateDescription(event: any) {
+  if (
+    props.timeEntry &&
+    props.timeEntry.id &&
+    event.target.value !== props.timeEntry.description
+  ) {
     setDescription({
       id: props.timeEntry.id,
-      description: props.timeEntry.description,
+      description: event.target.value,
     });
   }
 }
 
 function updateStartTime(value: string) {
-  setStartTime({ id: props.timeEntry.id, startTime: value });
+  if (props.timeEntry.id) {
+    setStartTime({ id: props.timeEntry.id, startTime: value });
+  }
 }
 
 function updateEndTime(value: string) {
-  setEndTime({ id: props.timeEntry.id, endTime: value });
+  if (props.timeEntry.id) {
+    setEndTime({ id: props.timeEntry.id, endTime: value });
+  }
 }
 </script>

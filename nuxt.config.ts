@@ -8,6 +8,7 @@ export default defineNuxtConfig({
     "@nuxtjs/color-mode",
     "nuxt-time",
     "@vueuse/nuxt",
+    "dayjs-nuxt",
   ],
   colorMode: {
     preference: "system", // default theme
@@ -22,5 +23,9 @@ export default defineNuxtConfig({
       exclude: ["/"],
       cookieRedirect: true,
     },
+  },
+  dayjs: {
+    plugins: ["isYesterday"],
+    defaultLocale: "da",
   },
 });
