@@ -1,7 +1,7 @@
 <template>
   <input
     type="text"
-    class="w-[50px] input input-xs sm:input-sm input-bordered"
+    class="max-w-16 input input-xs sm:input-sm input-bordered"
     :value="formatValue()"
     ref="input"
     @blur="emitValue"

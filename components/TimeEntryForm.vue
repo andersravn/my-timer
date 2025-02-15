@@ -2,12 +2,12 @@
   <form class="flex justify-between items-center space-x-2">
     <input
       type="text"
-      class="w-full input input-xs sm:input-sm"
+      class="input input-xs sm:input-sm"
       :value="timeEntry.description"
       @blur="updateDescription"
       placeholder="No description"
     />
-    <div class="flex space-x-2 flex-nowrap">
+    <div class="flex space-x-2 items-center flex-nowrap">
       <TimeInput
         v-if="timeEntry.start_time"
         @update:model-value="updateStartTime"
@@ -19,9 +19,9 @@
         @update:model-value="updateEndTime"
         v-model.formatdate="timeEntry.end_time"
       />
-    </div>
-    <div class="text-xs">
-      {{ duration }}
+      <div class="text-xs w-[53px]">
+        {{ duration }}
+      </div>
     </div>
   </form>
 </template>

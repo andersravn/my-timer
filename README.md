@@ -79,3 +79,12 @@ Check out the [deployment documentation](https://nuxt.com/docs/getting-started/d
 [Supabase docs](https://supabase.com/docs/guides/api/rest/generating-types)
 
 `npx supabase gen types typescript --project-id "$PROJECT_REF" --schema public > database.types.ts`
+
+# TODO
+
+[ ] Time inputs are too small on smaller screens
+[ ] Start new entry from existing entry
+[ ] Template for new entry with fixed start and end times
+[ ] Create goals for days
+[ ] Use goals to show when work ends on a given day
+[ ] A new entry should start when the previous ended, if the same day (perhaps as a setting)
