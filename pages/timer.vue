@@ -1,10 +1,6 @@
-<script setup>
-const { refreshTimeEntries } = useTimeEntries();
-</script>
-
 <template>
   <div class="w-full">
-    <StartTimerForm @stop-timer="refreshTimeEntries" />
+    <StartTimerForm />
   </div>
   <TimeEntryList />
 </template>

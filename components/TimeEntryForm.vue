@@ -22,6 +22,7 @@
       <div class="text-xs w-[53px]">
         {{ duration }}
       </div>
+      <TimeEntryUtilities :timeEntries="[timeEntry as TimeEntry]" />
     </div>
   </form>
 </template>

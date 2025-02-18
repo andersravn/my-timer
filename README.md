@@ -82,8 +82,9 @@ Check out the [deployment documentation](https://nuxt.com/docs/getting-started/d
 
 # TODO
 
-[ ] Time inputs are too small on smaller screens
-[ ] Start new entry from existing entry
+[X] Time inputs are too small on smaller screens
+[X] Start new entry from existing entry
+[X] Delete entries
 [ ] Template for new entry with fixed start and end times
 [ ] Create goals for days
 [ ] Use goals to show when work ends on a given day

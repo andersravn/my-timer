@@ -33,14 +33,15 @@
 
 <script setup lang="ts">
 import { type TimeEntry } from "~/types/timer.types";
-const description = ref("");
-const timer = ref<TimeEntry | null | undefined>(null);
+
 const {
   createNewTimeEntry,
   stopTimer,
   activeTimeEntry,
-  optimisticUpdateLatestTimeEntry,
   setStartTime,
+  timer,
+  description,
+  refreshTimeEntries,
 } = useTimeEntries();
 
 const timerInputRef = useTemplateRef("timerInputRef");
@@ -61,8 +62,6 @@ watch(
   { immediate: true }
 );
 
-const emit = defineEmits(["stopTimer"]);
-
 watch(activeTimeEntry, () => {
   if (activeTimeEntry.value) {
     timer.value = activeTimeEntry.value as TimeEntry;
@@ -80,20 +79,15 @@ const handleFormSubmit = async () => {
         description: description.value,
         endTime: new Date().toISOString(),
       });
-      optimisticUpdateLatestTimeEntry(timer.value);
-      timer.value = null;
-      description.value = "";
-      emit("stopTimer");
+      refreshTimeEntries();
     } catch (error) {
       console.error(error);
     }
   } else {
     try {
-      const { data, error } = await createNewTimeEntry({
+      createNewTimeEntry({
         description: description.value,
       });
-      timer.value = data;
-      if (error) throw error;
     } catch (error) {
       console.error(error);
     }

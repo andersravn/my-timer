@@ -25,6 +25,7 @@
         $dayjs(entriesByDescription?.[0].end_time).format("HH:mm")
       }}</span>
       <span class="text-xs">{{ getTotalTime(entriesByDescription) }}</span>
+      <TimeEntryUtilities :timeEntries="entriesByDescription as TimeEntry[]" />
     </div>
   </div>
   <ul v-if="showTimeEntries" class="ml-4 flex flex-col space-y-2 mt-2">
@@ -35,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { type TimeEntryBase } from "~/types/timer.types";
+import { type TimeEntry, type TimeEntryBase } from "~/types/timer.types";
 
 const props = defineProps({
   entriesByDescription: {

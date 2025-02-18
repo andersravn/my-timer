@@ -1,5 +1,8 @@
 import type { TimeEntry } from "~/types/timer.types";
 
+const timer = ref<TimeEntry | null | undefined>(null);
+const description = ref("");
+
 export function useTimeEntries() {
   const client = useSupabaseClient();
   const user = useSupabaseUser();
@@ -55,7 +58,7 @@ export function useTimeEntries() {
 
   async function stopTimer({
     id,
-    description,
+    description: newDescription,
     endTime,
   }: {
     id: number;
@@ -66,12 +69,17 @@ export function useTimeEntries() {
     const response = await client
       .from("time_entries")
       .update({
-        description: description,
+        description: newDescription,
         end_time: endTime,
       })
       .eq("id", id)
       .eq("user_id", user.value.id);
     if (response.error) throw response.error;
+    if (timer.value) {
+      optimisticUpdateLatestTimeEntry(timer.value);
+    }
+    timer.value = null;
+    description.value = "";
     return response;
   }
 
@@ -113,16 +121,33 @@ export function useTimeEntries() {
     return response;
   }
 
-  async function createNewTimeEntry({ description }: { description: string }) {
+  async function createNewTimeEntry({
+    description: newDescription,
+  }: {
+    description: string;
+  }) {
     const response = await client
       .from("time_entries")
       .upsert({
         user_id: user.value?.id,
-        description: description,
+        description: newDescription,
         start_time: new Date().toISOString(),
       })
       .select()
       .single();
+    if (response.error) throw response.error;
+    timer.value = response.data;
+    description.value = newDescription;
+    return response;
+  }
+
+  async function deleteTimeEntries(ids: number[]) {
+    if (!user.value) return;
+    const response = await client
+      .from("time_entries")
+      .delete()
+      .in("id", ids)
+      .eq("user_id", user.value.id);
     if (response.error) throw response.error;
     return response;
   }
@@ -137,5 +162,8 @@ export function useTimeEntries() {
     activeTimeEntry,
     stopTimer,
     optimisticUpdateLatestTimeEntry,
+    timer,
+    description,
+    deleteTimeEntries,
   };
 }

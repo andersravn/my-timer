@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     "nuxt-time",
     "@vueuse/nuxt",
     "dayjs-nuxt",
+    "@nuxt/icon",
   ],
   colorMode: {
     preference: "system", // default theme
