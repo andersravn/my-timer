@@ -9,18 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      countries: {
+      goals: {
         Row: {
+          created_at: string
+          day: string | null
+          duration: number | null
+          duration_type: string | null
           id: number
-          name: string
+          name: string | null
+          user_id: string | null
         }
         Insert: {
-          id?: never
-          name: string
+          created_at?: string
+          day?: string | null
+          duration?: number | null
+          duration_type?: string | null
+          id?: number
+          name?: string | null
+          user_id?: string | null
         }
         Update: {
-          id?: never
-          name?: string
+          created_at?: string
+          day?: string | null
+          duration?: number | null
+          duration_type?: string | null
+          id?: number
+          name?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }

@@ -78,7 +78,9 @@ Check out the [deployment documentation](https://nuxt.com/docs/getting-started/d
 
 [Supabase docs](https://supabase.com/docs/guides/api/rest/generating-types)
 
-`npx supabase gen types typescript --project-id "$PROJECT_REF" --schema public > database.types.ts`
+`npx supabase gen types typescript --project-id "$PROJECT_REF" --schema public > types/database.types.ts`
+
+Find the project ref in the settings of the project in the Supabase dashboard.
 
 # TODO
 
@@ -89,3 +91,4 @@ Check out the [deployment documentation](https://nuxt.com/docs/getting-started/d
 [ ] Create goals for days
 [ ] Use goals to show when work ends on a given day
 [ ] A new entry should start when the previous ended, if the same day (perhaps as a setting)
+[ ] Drag and drop entries

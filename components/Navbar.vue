@@ -4,9 +4,12 @@
       <a class="btn btn-ghost text-xl">P.T.</a>
     </div>
     <div class="flex-none">
-      <ul class="menu menu-horizontal px-1">
+      <ul class="menu menu-horizontal !flex-nowrap px-1">
         <li>
           <NuxtLink to="/timer">Timer</NuxtLink>
+        </li>
+        <li>
+          <NuxtLink to="/goals">Goals</NuxtLink>
         </li>
       </ul>
       <ThemeController />

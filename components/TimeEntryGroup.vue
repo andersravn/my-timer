@@ -24,7 +24,9 @@
       <span class="w-16 flex justify-center">{{
         $dayjs(entriesByDescription?.[0].end_time).format("HH:mm")
       }}</span>
-      <span class="text-xs">{{ getTotalTime(entriesByDescription) }}</span>
+      <span class="text-xs">{{
+        formatDuration(getTotalTimeInSeconds(entriesByDescription))
+      }}</span>
       <TimeEntryUtilities :timeEntries="entriesByDescription as TimeEntry[]" />
     </div>
   </div>
@@ -46,24 +48,9 @@ const props = defineProps({
   description: { type: String, required: true },
 });
 
-const dayjs = useDayjs();
-
 const [showTimeEntries, toggleShowTimeEntries] = useToggle();
 
 const { setDescription } = useTimeEntries();
-
-function getTotalTime(timeEntries: TimeEntryBase[]) {
-  const totalTime = timeEntries.reduce((acc, entry) => {
-    if (entry.start_time && entry.end_time) {
-      const start = dayjs(entry.start_time);
-      const end = dayjs(entry.end_time);
-      const duration = end.diff(start, "seconds");
-      return acc + duration;
-    }
-    return acc;
-  }, 0);
-  return formatDuration(totalTime);
-}
 
 function updateDescriptions(event: any) {
   for (const entry of props.entriesByDescription) {

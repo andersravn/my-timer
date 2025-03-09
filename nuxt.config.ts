@@ -28,5 +28,6 @@ export default defineNuxtConfig({
   dayjs: {
     plugins: ["isYesterday"],
     defaultLocale: "da",
+    locales: ["da"],
   },
 });
