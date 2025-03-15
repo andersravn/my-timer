@@ -1,18 +1,8 @@
+<!-- This component is no longer used, functionality moved to goals.vue page -->
 <template>
-  <ul>
-    <li v-for="goal in goals" :key="goal.id">
-      <div class="flex gap-2">
-        <h2>{{ goal.name }}</h2>
-        <p>{{ goal.duration }} timer</p>
-        <p>{{ goal.day }}</p>
-        <button @click="deleteGoal(goal.id)">
-          <Icon name="lucide:trash" />
-        </button>
-      </div>
-    </li>
-  </ul>
+  <div class="text-center py-4">Component deprecated</div>
 </template>
 
 <script setup lang="ts">
-const { goals, deleteGoal } = useGoals();
+// No longer used
 </script>

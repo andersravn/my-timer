@@ -66,6 +66,30 @@ export type Database = {
         }
         Relationships: []
       }
+      time_entry_templates: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_time: string | null
+          id: number
+          start_time: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_time?: string | null
+          id?: number
+          start_time?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_time?: string | null
+          id?: number
+          start_time?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

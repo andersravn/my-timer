@@ -9,6 +9,9 @@
           <NuxtLink to="/timer">Timer</NuxtLink>
         </li>
         <li>
+          <NuxtLink to="/templates">Templates</NuxtLink>
+        </li>
+        <li>
           <NuxtLink to="/goals">Goals</NuxtLink>
         </li>
       </ul>

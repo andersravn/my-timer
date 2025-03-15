@@ -8,7 +8,7 @@
       :value="modelValue"
       @change="handleChange"
     >
-      <option v-if="placeholder" disabled value="">{{ placeholder }}</option>
+      <option v-if="placeholder" disabled selected value="">{{ placeholder }}</option>
       <option
         v-for="option in options"
         :key="option.value"

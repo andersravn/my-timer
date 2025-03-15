@@ -5,13 +5,32 @@ export function useGoals() {
   const user = useSupabaseUser();
 
   async function createNewGoal({ name, duration, day }: GoalFormValues) {
-    const response = await client.from("goals").upsert({
+    const response = await client.from("goals").insert({
       user_id: user.value?.id,
       duration: parseFloat(duration.replace(",", ".")),
       duration_type: "atLeast",
       name,
       day,
     });
+    if (response.error) throw response.error;
+    refreshGoals();
+    return response;
+  }
+
+  async function updateGoal(id: number, { name, duration, day }: GoalFormValues) {
+    if (!user.value) return;
+    
+    const response = await client
+      .from("goals")
+      .update({
+        duration: parseFloat(duration.replace(",", ".")),
+        duration_type: "atLeast",
+        name,
+        day,
+      })
+      .eq("id", id)
+      .eq("user_id", user.value.id);
+      
     if (response.error) throw response.error;
     refreshGoals();
     return response;
@@ -45,6 +64,7 @@ export function useGoals() {
 
   return {
     createNewGoal,
+    updateGoal,
     refreshGoals,
     deleteGoal,
     goals,

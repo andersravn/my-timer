@@ -88,7 +88,8 @@ Find the project ref in the settings of the project in the Supabase dashboard.
 [X] Start new entry from existing entry
 [X] Delete entries
 [ ] Template for new entry with fixed start and end times
-[ ] Create goals for days
-[ ] Use goals to show when work ends on a given day
+[X] Create goals for days
+[X] Use goals to show when work ends on a given day
 [ ] A new entry should start when the previous ended, if the same day (perhaps as a setting)
+[ ] More dynamic entering of time, e.g., 12 and 1200 should be handled as 12:00.
 [ ] Drag and drop entries
