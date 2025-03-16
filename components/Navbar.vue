@@ -15,13 +15,9 @@
           <NuxtLink to="/goals">Goals</NuxtLink>
         </li>
       </ul>
-      <ThemeController />
-      <div class="avatar placeholder">
-        <div class="bg-neutral text-neutral-content w-8 rounded-full">
-          <span class="text-xs uppercase">{{
-            user?.email?.substring(0, 2)
-          }}</span>
-        </div>
+      <div class="flex items-center gap-2">
+        <ThemeController />
+        <UserAvatar v-if="user" />
       </div>
     </div>
   </div>
