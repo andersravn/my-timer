@@ -1,0 +1,5 @@
+{
+  "buildEnv": {
+    "NUXT_PUBLIC_SITE_URL": "https://$VERCEL_URL"
+  }
+}
