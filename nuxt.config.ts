@@ -22,7 +22,7 @@ export default defineNuxtConfig({
       login: "/login",
       callback: "/confirm",
       exclude: ["/"],
-      cookieRedirect: true,
+      saveRedirectToCookie: true,
     },
   },
   dayjs: {
@@ -33,7 +33,7 @@ export default defineNuxtConfig({
   // Add runtime config for app URL
   runtimeConfig: {
     public: {
-      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-    }
-  }
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || "http://localhost:3000",
+    },
+  },
 });

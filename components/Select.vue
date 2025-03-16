@@ -8,7 +8,9 @@
       :value="modelValue"
       @change="handleChange"
     >
-      <option v-if="placeholder" disabled selected value="">{{ placeholder }}</option>
+      <option v-if="placeholder" disabled selected value="">
+        {{ placeholder }}
+      </option>
       <option
         v-for="option in options"
         :key="option.value"
@@ -21,8 +23,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from "vue";
-
 defineProps<{
   modelValue: string;
   label?: string;
