@@ -1,6 +1,7 @@
-# CLAUDE.md - My Timer Project
+# CLAUDE.md - ClockOut Project
 
 ## Build Commands
+
 ```bash
 npm run dev      # Start development server
 npm run build    # Build for production
@@ -9,6 +10,7 @@ npm run preview  # Preview production build
 ```
 
 ## Code Style Guidelines
+
 - **Components**: Use Vue SFCs with `<script setup>` composition API
 - **Naming**: PascalCase for components/types, camelCase for functions/variables
 - **Imports**: Use `~/` alias for project root, `import type` for type imports
