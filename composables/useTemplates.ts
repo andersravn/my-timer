@@ -79,10 +79,10 @@ export function useTemplates() {
     return response;
   }
 
+  const { refreshTimeEntries } = useTimeEntries();
+
   async function createTimeEntryFromTemplate(template: TimeEntryTemplate) {
     if (!user.value) return;
-
-    const { refreshTimeEntries } = useTimeEntries();
 
     // Only proceed if template has start_time and end_time
     if (!template.start_time || !template.end_time) {

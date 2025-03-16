@@ -1,11 +1,13 @@
 <template>
   <div class="container mx-auto p-4">
     <h1 class="text-2xl font-bold mb-6">Goals</h1>
-    
+
     <!-- Goal Form -->
     <div class="card bg-base-200 shadow-xl mb-8">
       <div class="card-body">
-        <h2 class="card-title mb-4">{{ editingGoal ? 'Edit Goal' : 'Add New Goal' }}</h2>
+        <h2 class="card-title mb-4">
+          {{ editingGoal ? "Edit Goal" : "Add New Goal" }}
+        </h2>
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <TextInput
             label="Name"
@@ -13,7 +15,7 @@
             placeholder="Goal name"
             required
           />
-          
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <TextInput
               label="Hours"
@@ -39,33 +41,35 @@
               />
             </div>
           </div>
-          
+
           <div class="card-actions justify-end mt-4">
-            <button 
-              v-if="editingGoal" 
-              type="button" 
-              class="btn btn-outline" 
+            <button
+              v-if="editingGoal"
+              type="button"
+              class="btn btn-outline"
               @click="cancelEdit"
             >
               Cancel
             </button>
             <button type="submit" class="btn btn-primary">
-              {{ editingGoal ? 'Update' : 'Create' }} Goal
+              {{ editingGoal ? "Update" : "Create" }} Goal
             </button>
           </div>
         </form>
       </div>
     </div>
-    
+
     <!-- Goal List -->
     <div class="card bg-base-100 shadow-xl">
       <div class="card-body">
         <h2 class="card-title mb-4">Your Goals</h2>
-        
+
         <div v-if="!goals || goals.length === 0" class="text-center py-8">
-          <p class="text-gray-500">No goals found. Create your first goal above!</p>
+          <p class="text-gray-500">
+            No goals found. Create your first goal above!
+          </p>
         </div>
-        
+
         <div v-else class="overflow-x-auto">
           <table class="table w-full">
             <thead>
@@ -82,14 +86,14 @@
                 <td>{{ goal.duration }}</td>
                 <td>{{ formatDay(goal.day) }}</td>
                 <td class="flex items-center space-x-2">
-                  <button 
-                    class="btn btn-sm btn-outline" 
+                  <button
+                    class="btn btn-sm btn-outline"
                     @click="editGoal(goal)"
                   >
                     Edit
                   </button>
-                  <button 
-                    class="btn btn-sm btn-error btn-outline" 
+                  <button
+                    class="btn btn-sm btn-error btn-outline"
                     @click="confirmDelete(goal.id)"
                   >
                     Delete
@@ -105,14 +109,15 @@
 </template>
 
 <script setup lang="ts">
-import type { GoalFormValues } from '~/types/goal.types';
+import type { GoalFormValues } from "~/types/goal.types";
 
 definePageMeta({
-  layout: 'default',
+  layout: "default",
 });
 
 // Get goals from composable
-const { goals, createNewGoal, updateGoal, deleteGoal, refreshGoals } = useGoals();
+const { goals, createNewGoal, updateGoal, deleteGoal, refreshGoals } =
+  useGoals();
 
 // Form State
 const form = ref<GoalFormValues>({
@@ -128,10 +133,11 @@ const editingGoal = ref<any | null>(null);
 function editGoal(goal: any) {
   editingGoal.value = goal;
   form.value = {
-    name: goal.name || '',
-    duration: goal.duration?.toString() || '',
-    day: goal.day || 'daily'
+    name: goal.name || "",
+    duration: goal.duration?.toString() || "",
+    day: goal.day || "daily",
   };
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 // Cancel edit
@@ -140,7 +146,7 @@ function cancelEdit() {
   resetForm();
 }
 
-// Reset form 
+// Reset form
 function resetForm() {
   form.value = {
     name: "",
@@ -154,7 +160,7 @@ async function handleSubmit() {
   if (!form.value.name || !form.value.duration) {
     return;
   }
-  
+
   try {
     if (editingGoal.value) {
       // Update existing goal
@@ -167,33 +173,33 @@ async function handleSubmit() {
     resetForm();
     refreshGoals();
   } catch (error) {
-    console.error('Error saving goal:', error);
+    console.error("Error saving goal:", error);
   }
 }
 
 // Confirm delete
 function confirmDelete(id: number) {
-  if (confirm('Are you sure you want to delete this goal?')) {
+  if (confirm("Are you sure you want to delete this goal?")) {
     deleteGoal(id);
   }
 }
 
 // Format day for display
 function formatDay(day: string | null) {
-  if (!day) return '';
-  
-  const dayMap: {[key: string]: string} = {
-    'daily': 'Every day',
-    'weekly': 'Weekly',
-    '0': 'Sunday',
-    '1': 'Monday',
-    '2': 'Tuesday',
-    '3': 'Wednesday',
-    '4': 'Thursday',
-    '5': 'Friday',
-    '6': 'Saturday'
+  if (!day) return "";
+
+  const dayMap: { [key: string]: string } = {
+    daily: "Every day",
+    weekly: "Weekly",
+    "0": "Sunday",
+    "1": "Monday",
+    "2": "Tuesday",
+    "3": "Wednesday",
+    "4": "Thursday",
+    "5": "Friday",
+    "6": "Saturday",
   };
-  
+
   return dayMap[day] || day;
 }
 </script>

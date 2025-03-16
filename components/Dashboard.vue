@@ -25,25 +25,6 @@
         <div className="stat-desc">Mål: {{ weeklyGoal }}</div>
       </div>
     </div>
-    <!-- <div>
-      <span class="uppercase font-bold mr-1 text-slate-400">I dag</span>
-      <span v-if="todaysEntries?.length > 0">{{
-        formatDuration(elapsed)
-      }}</span>
-      <span v-else> 0:00:00 </span>
-      <span v-if="goalForDayOfWeek">
-        <span class="uppercase font-bold mx-1 text-slate-400">Mål</span>
-        {{ goalForDayOfWeek.duration }} timer
-      </span>
-      <span v-if="showFinishedAtTime"
-        ><span class="uppercase font-bold mx-1 text-slate-400">Færdig</span> kl.
-        {{ getFinishedAtTime() }}</span
-      >
-    </div>
-    <div>
-      <span class="uppercase font-bold mr-1 text-slate-400">Denne uge</span>
-      <span>{{ getWeeklyTotal() }}</span>
-    </div> -->
   </div>
 </template>
 
@@ -66,13 +47,15 @@ const goalForDayOfWeek = computed(() => {
   });
 });
 
-const todaysEntries =
-  timeEntries.value?.filter((entry) =>
-    entry.start_time?.includes(new Date().toISOString().split("T")[0])
-  ) ?? [];
+const todaysEntries = computed(
+  () =>
+    timeEntries.value?.filter((entry) =>
+      dayjs().isSame(new Date(entry.start_time || ""), "date")
+    ) ?? []
+);
 
 const elapsed = computed(() => {
-  return getTotalTimeInSeconds(todaysEntries);
+  return getTotalTimeInSeconds(todaysEntries.value);
 });
 
 const showFinishedAtTime = computed(() => {

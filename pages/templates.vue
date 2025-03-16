@@ -138,6 +138,7 @@ function editTemplate(template: TimeEntryTemplate) {
     start_time: template.start_time || new Date().toISOString(),
     end_time: template.end_time || new Date().toISOString(),
   };
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 // Cancel edit
@@ -194,15 +195,20 @@ function formatTime(timeString: string | null) {
 // Custom duration formatting for templates
 function formatDuration(startTime: string | null, endTime: string | null) {
   if (!startTime || !endTime) return "--:--:--";
-  
+
   const start = new Date(startTime);
   const end = new Date(endTime);
-  const durationInSeconds = Math.floor((end.getTime() - start.getTime()) / 1000);
-  
+  const durationInSeconds = Math.floor(
+    (end.getTime() - start.getTime()) / 1000
+  );
+
   const hours = String(Math.floor(durationInSeconds / 3600)).padStart(2, "0");
-  const minutes = String(Math.floor((durationInSeconds % 3600) / 60)).padStart(2, "0");
+  const minutes = String(Math.floor((durationInSeconds % 3600) / 60)).padStart(
+    2,
+    "0"
+  );
   const seconds = String(Math.floor(durationInSeconds % 60)).padStart(2, "0");
-  
+
   return `${hours}:${minutes}:${seconds}`;
 }
 </script>
