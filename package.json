@@ -10,19 +10,20 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@nuxt/icon": "^1.10.3",
+    "@nuxt/icon": "^1.11.0",
     "@nuxtjs/color-mode": "^3.5.2",
-    "@nuxtjs/supabase": "^1.4.6",
-    "@nuxtjs/tailwindcss": "^6.13.1",
-    "@vueuse/nuxt": "^12.7.0",
+    "@nuxtjs/supabase": "^1.5.0",
+    "@nuxtjs/tailwindcss": "^6.13.2",
+    "@vueuse/nuxt": "^13.0.0",
     "daisyui": "^4.12.23",
     "dayjs-nuxt": "^2.1.11",
-    "nuxt": "^3.15.4",
+    "nuxt": "^3.16.0",
     "nuxt-time": "^1.0.3",
+    "vercel": "^41.4.1",
     "vue": "latest",
     "vue-router": "latest"
   },
   "devDependencies": {
-    "supabase": "^2.12.1"
+    "supabase": "^2.19.7"
   }
 }
