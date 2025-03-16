@@ -26,17 +26,17 @@ function groupByDescription(timeEntries: TimeEntryBase[]) {
     return acc;
   }, {} as Record<string, TimeEntryBase[]>);
 }
+
+function isYesterday(date: string) {
+  return dayjs(date).isSame(dayjs().subtract(1, "day"), "day");
+}
 </script>
 
 <template>
   <ul class="mx-2">
     <li v-for="(entries, date) in timeEntriesByDay" :key="date">
       <h2 class="font-bold">
-        {{
-          $dayjs(date).isYesterday()
-            ? "I går"
-            : $dayjs(date).format("ddd D MMM")
-        }}
+        {{ isYesterday(date) ? "I går" : $dayjs(date).format("ddd D MMM") }}
         {{ $dayjs(date).year() !== $dayjs().year() ? $dayjs(date).year() : "" }}
       </h2>
       <ul class="mx-4">

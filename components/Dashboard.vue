@@ -1,7 +1,7 @@
 <template>
   <div class="flex gap-4">
     <div className="stats shadow">
-      <div className="stat" v-if="todaysEntries?.length > 0">
+      <div className="stat">
         <div className="stat-title">I dag</div>
         <div className="stat-value">
           {{ formatDuration(elapsed, { padStartHours: 1 }) }}
@@ -19,7 +19,7 @@
       </div>
     </div>
     <div className="stats shadow">
-      <div className="stat" v-if="todaysEntries?.length > 0">
+      <div className="stat">
         <div className="stat-title">Denne uge</div>
         <div className="stat-value">{{ getWeeklyTotal() }}</div>
         <div className="stat-desc">Mål: {{ weeklyGoal }}</div>
