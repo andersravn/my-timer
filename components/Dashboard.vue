@@ -1,28 +1,28 @@
 <template>
   <div class="flex gap-4">
-    <div className="stats shadow">
-      <div className="stat">
-        <div className="stat-title">I dag</div>
-        <div className="stat-value">
+    <div class="stats shadow">
+      <div class="stat">
+        <div class="stat-title">I dag</div>
+        <div class="stat-value">
           {{ formatDuration(elapsed, { padStartHours: 1 }) }}
         </div>
-        <div className="stat-desc" v-if="goalForDayOfWeek">
+        <div class="stat-desc" v-if="goalForDayOfWeek">
           {{ goalForDayOfWeek.duration }} timer er dagens mål
         </div>
       </div>
     </div>
-    <div className="stats shadow" v-if="showFinishedAtTime">
-      <div className="stat" v-if="todaysEntries?.length > 0">
-        <div className="stat-title">Færdig kl.</div>
-        <div className="stat-value">{{ getFinishedAtTime() }}</div>
-        <div className="stat-desc">{{ getBalanceDisplay() }}</div>
+    <div class="stats shadow" v-if="showFinishedAtTime">
+      <div class="stat" v-if="todaysEntries?.length > 0">
+        <div class="stat-title">Færdig kl.</div>
+        <div class="stat-value">{{ getFinishedAtTime() }}</div>
+        <div class="stat-desc">{{ getBalanceDisplay() }}</div>
       </div>
     </div>
-    <div className="stats shadow">
-      <div className="stat">
-        <div className="stat-title">Denne uge</div>
-        <div className="stat-value">{{ getWeeklyTotal() }}</div>
-        <div className="stat-desc">Mål: {{ weeklyGoal }}</div>
+    <div class="stats shadow">
+      <div class="stat">
+        <div class="stat-title">Denne uge</div>
+        <div class="stat-value">{{ getWeeklyTotal() }}</div>
+        <div class="stat-desc">Mål: {{ weeklyGoal }}</div>
       </div>
     </div>
   </div>
