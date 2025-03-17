@@ -114,8 +114,8 @@ definePageMeta({
 // Form State
 const form = ref<TimeEntryTemplateFormValues>({
   description: "",
-  start_time: new Date().toISOString(),
-  end_time: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // Default to now + 30 minutes
+  start_time: "",
+  end_time: "",
 });
 
 // Template being edited

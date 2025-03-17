@@ -12,8 +12,6 @@ const props = defineProps({
   },
 });
 
-console.log(props.startTime);
-
 const elapsedTime = ref(0); // Elapsed time in seconds
 
 const formattedTime = computed(() => {
