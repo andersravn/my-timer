@@ -1,7 +1,9 @@
 <template>
   <div class="navbar bg-base-100">
     <div class="flex-1">
-      <NuxtLink to="/" class="btn btn-ghost text-xl">ClockOut</NuxtLink>
+      <NuxtLink :to="user ? '/timer' : '/'" class="btn btn-ghost text-xl"
+        >ClockOut</NuxtLink
+      >
     </div>
     <div class="flex-none">
       <!-- Authenticated User Menu -->
