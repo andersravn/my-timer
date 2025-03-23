@@ -5,6 +5,7 @@
     :value="formatValue()"
     ref="input"
     @blur="handleInput"
+    @keydown.enter="handleInput"
     placeholder="HH:MM"
   />
 </template>

@@ -43,60 +43,61 @@
         </form>
       </div>
     </div>
+    <ClientOnly>
+      <!-- Template List -->
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title mb-4">Your Templates</h2>
 
-    <!-- Template List -->
-    <div class="card bg-base-100 shadow-xl">
-      <div class="card-body">
-        <h2 class="card-title mb-4">Your Templates</h2>
+          <div
+            v-if="!templates || templates.length === 0"
+            class="text-center py-8"
+          >
+            <p class="text-gray-500">
+              No templates found. Create your first template above!
+            </p>
+          </div>
 
-        <div
-          v-if="!templates || templates.length === 0"
-          class="text-center py-8"
-        >
-          <p class="text-gray-500">
-            No templates found. Create your first template above!
-          </p>
-        </div>
-
-        <div v-else class="overflow-x-auto">
-          <table class="table w-full">
-            <thead>
-              <tr>
-                <th>Description</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-                <th>Duration</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="template in templates" :key="template.id">
-                <td>{{ template.description }}</td>
-                <td>{{ formatTime(template.start_time) }}</td>
-                <td>{{ formatTime(template.end_time) }}</td>
-                <td>
-                  {{ formatDuration(template.start_time, template.end_time) }}
-                </td>
-                <td class="flex items-center space-x-2">
-                  <button
-                    class="btn btn-sm btn-outline"
-                    @click="editTemplate(template)"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    class="btn btn-sm btn-error btn-outline"
-                    @click="confirmDelete(template.id)"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div v-else class="overflow-x-auto">
+            <table class="table w-full">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Start Time</th>
+                  <th>End Time</th>
+                  <th>Duration</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="template in templates" :key="template.id">
+                  <td>{{ template.description }}</td>
+                  <td>{{ formatTime(template.start_time) }}</td>
+                  <td>{{ formatTime(template.end_time) }}</td>
+                  <td>
+                    {{ formatDuration(template.start_time, template.end_time) }}
+                  </td>
+                  <td class="flex items-center space-x-2">
+                    <button
+                      class="btn btn-sm btn-outline"
+                      @click="editTemplate(template)"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      class="btn btn-sm btn-error btn-outline"
+                      @click="confirmDelete(template.id)"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
+    </ClientOnly>
   </div>
 </template>
 
@@ -114,8 +115,8 @@ definePageMeta({
 // Form State
 const form = ref<TimeEntryTemplateFormValues>({
   description: "",
-  start_time: "",
-  end_time: "",
+  start_time: new Date().toISOString(),
+  end_time: new Date().toISOString(),
 });
 
 // Template being edited

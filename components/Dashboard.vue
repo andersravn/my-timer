@@ -1,35 +1,46 @@
 <template>
-  <div class="flex gap-4 flex-wrap">
-    <div class="stats shadow">
-      <div class="stat">
-        <div class="stat-title">Today</div>
-        <div class="stat-value min-w-[180px]">
-          {{ formattedTodayTime }}
+  <ClientOnly>
+    <div class="flex gap-4 flex-wrap">
+      <div class="stats shadow">
+        <div class="stat">
+          <div class="stat-title">Today</div>
+          <div class="stat-value min-w-[180px]">
+            {{ formattedTodayTime }}
+          </div>
+          <div class="stat-desc" v-if="goalForDayOfWeek">
+            {{ goalForDayOfWeek.duration }} is today's goal
+          </div>
         </div>
-        <div class="stat-desc" v-if="goalForDayOfWeek">
-          {{ goalForDayOfWeek.duration }} is today's goal
+      </div>
+      <div class="stats shadow" v-if="showFinishedAtTime">
+        <div class="stat" v-if="todaysEntries?.length > 0">
+          <div class="stat-title">Finish at</div>
+          <div class="stat-value min-w-[80px]">
+            {{ finishAtTime }}
+          </div>
+          <div class="stat-desc">{{ getBalanceDisplay() }}</div>
+        </div>
+      </div>
+      <div class="stats shadow">
+        <div class="stat">
+          <div class="stat-title">This week</div>
+          <div class="stat-value min-w-[100px]">
+            {{ formattedWeeklyTime }}
+          </div>
+          <div class="stat-desc">Goal: {{ weeklyGoal }} hours</div>
         </div>
       </div>
     </div>
-    <div class="stats shadow" v-if="showFinishedAtTime">
-      <div class="stat" v-if="todaysEntries?.length > 0">
-        <div class="stat-title">Finish at</div>
-        <div class="stat-value min-w-[80px]">
-          {{ finishAtTime }}
-        </div>
-        <div class="stat-desc">{{ getBalanceDisplay() }}</div>
+
+    <template #fallback>
+      <div class="flex gap-4">
+        <div
+          v-for="index in 3"
+          class="w-[180px] rounded h-[112px] animate-pulse bg-neutral-content/80"
+        ></div>
       </div>
-    </div>
-    <div class="stats shadow">
-      <div class="stat">
-        <div class="stat-title">This week</div>
-        <div class="stat-value min-w-[100px]">
-          {{ formattedWeeklyTime }}
-        </div>
-        <div class="stat-desc">Goal: {{ weeklyGoal }} hours</div>
-      </div>
-    </div>
-  </div>
+    </template>
+  </ClientOnly>
 </template>
 
 <script setup lang="ts">

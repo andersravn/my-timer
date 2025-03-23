@@ -24,7 +24,7 @@
       <span class="w-16 flex justify-center">{{
         $dayjs(entriesByDescription?.[0].end_time).format("HH:mm")
       }}</span>
-      <span class="text-xs">{{
+      <span class="text-xs font-bold">{{
         formatDuration(getTotalTimeInSeconds(entriesByDescription))
       }}</span>
       <TimeEntryUtilities :timeEntries="entriesByDescription as TimeEntry[]" />

@@ -53,6 +53,7 @@ export function useTimeEntries() {
       .eq("id", id)
       .eq("user_id", user.value.id);
     if (response.error) throw response.error;
+    refreshTimeEntries();
     return response;
   }
 
@@ -99,6 +100,7 @@ export function useTimeEntries() {
       .eq("id", id)
       .eq("user_id", user.value.id);
     if (response.error) throw response.error;
+    refreshTimeEntries();
     return response;
   }
 
@@ -118,6 +120,7 @@ export function useTimeEntries() {
       .eq("id", id)
       .eq("user_id", user.value.id);
     if (response.error) throw response.error;
+    refreshTimeEntries();
     return response;
   }
 

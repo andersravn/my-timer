@@ -39,12 +39,12 @@ function isYesterday(date: string) {
         {{ isYesterday(date) ? "I går" : $dayjs(date).format("ddd D MMM") }}
         {{ $dayjs(date).year() !== $dayjs().year() ? $dayjs(date).year() : "" }}
       </h2>
-      <ul class="mx-4">
+      <ul class="mx-4 flex flex-col gap-0">
         <li
           v-for="(entriesByDescription, description) in groupByDescription(
             entries
           )"
-          class="my-4"
+          class="my-2"
           :key="description"
         >
           <TimeEntryGroup
@@ -53,7 +53,10 @@ function isYesterday(date: string) {
             :description="description"
           />
           <div v-else>
-            <TimeEntryForm :timeEntry="entriesByDescription[0]" />
+            <TimeEntryForm
+              :key="entriesByDescription[0].id"
+              :timeEntry="entriesByDescription[0]"
+            />
           </div>
         </li>
       </ul>

@@ -5,6 +5,7 @@
       class="input input-xs sm:input-sm"
       :value="timeEntry.description"
       @blur="updateDescription"
+      @keydown.enter="updateDescription"
       placeholder="No description"
     />
     <div class="flex space-x-2 items-center flex-nowrap">
@@ -19,7 +20,7 @@
         @update:model-value="updateEndTime"
         v-model.formatdate="timeEntry.end_time"
       />
-      <div class="text-xs w-[53px]">
+      <div class="text-xs w-[53px] font-bold">
         {{ duration }}
       </div>
       <TimeEntryUtilities :timeEntries="[timeEntry as TimeEntry]" />
