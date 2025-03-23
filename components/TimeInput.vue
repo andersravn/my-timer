@@ -1,19 +1,31 @@
 <template>
-  <input
-    type="text"
-    class="max-w-16 input input-xs sm:input-sm input-bordered"
-    :value="formatValue()"
-    ref="input"
-    @blur="handleInput"
-    @keydown.enter="handleInput"
-    placeholder="HH:MM"
-  />
+  <div @click="emit('click')">
+    <input
+      type="text"
+      class="max-w-16 input input-xs sm:input-sm input-bordered"
+      :value="formatValue()"
+      ref="input"
+      @blur="handleInput"
+      @keydown.enter="handleInput"
+      placeholder="HH:MM"
+    />
+    <span
+      v-if="showDatePicker"
+      class="size-4 relative inline-block ml-2 text-slate-500"
+    >
+      <span class="absolute inset-0 size-full">
+        <Icon name="lucide:calendar" />
+      </span>
+      <input type="date" class="datepicker-input" @change="handleDateChange" />
+    </span>
+  </div>
 </template>
 
 <script setup lang="ts">
 const props = defineProps({
   modelValue: String,
   modelModifiers: { default: { formatdate: false } },
+  showDatePicker: { default: false, type: Boolean },
 });
 
 const inputRef = useTemplateRef("input");
@@ -21,14 +33,22 @@ defineExpose({
   inputRef,
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits<{
+  (e: "changeDate", value: string): void;
+  (e: "update:modelValue", value: string): void;
+  (e: "click"): void;
+}>();
+
+function handleDateChange(e: any) {
+  emit("changeDate", e.target.value);
+}
 
 function handleInput(e: any) {
   let value = e.target.value;
 
   // If empty, don't process
   if (!value || value.trim() === "") {
-    emit("update:modelValue", props.modelValue);
+    emit("update:modelValue", props.modelValue || "");
     return;
   }
 
@@ -63,7 +83,7 @@ function handleInput(e: any) {
 
   // Handle invalid inputs
   if (isNaN(hours) || isNaN(minutes)) {
-    emit("update:modelValue", props.modelValue);
+    emit("update:modelValue", props.modelValue || "");
     return;
   }
 
@@ -102,3 +122,27 @@ function formatValue() {
   return props.modelValue;
 }
 </script>
+
+<style>
+.datepicker-input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.datepicker-input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+}
+</style>

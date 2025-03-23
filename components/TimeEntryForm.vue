@@ -13,12 +13,15 @@
         v-if="timeEntry.start_time"
         @update:model-value="updateStartTime"
         v-model.formatdate="timeEntry.start_time"
+        @change-date="handleChangeDate"
+        show-date-picker
       />
       <div>-</div>
       <TimeInput
         v-if="timeEntry.end_time"
         @update:model-value="updateEndTime"
         v-model.formatdate="timeEntry.end_time"
+        @change-date="handleChangeDate"
       />
       <div class="text-xs w-[53px] font-bold">
         {{ duration }}
@@ -71,5 +74,18 @@ function updateEndTime(value: string) {
   if (props.timeEntry.id) {
     setEndTime({ id: props.timeEntry.id, endTime: value });
   }
+}
+
+function handleChangeDate(newDate: string) {
+  const originalStartDate = new Date(props.timeEntry.start_time || "");
+  const originalEndDate = new Date(props.timeEntry.end_time || "");
+  const newStartDate = new Date(newDate);
+  const newEndDate = new Date(newDate);
+  newStartDate.setHours(originalStartDate.getHours());
+  newStartDate.setMinutes(originalStartDate.getMinutes());
+  newEndDate.setHours(originalEndDate.getHours());
+  newEndDate.setMinutes(originalEndDate.getMinutes());
+  updateStartTime(newStartDate.toISOString());
+  updateEndTime(newEndDate.toISOString());
 }
 </script>

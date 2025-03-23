@@ -7,12 +7,18 @@
         class="input input-bordered w-full"
         placeholder="Description..."
       />
-      <div class="w-[68px] flex-shrink-0">
+      <div
+        class="flex-shrink-0"
+        :class="toggleTimerInput ? 'w-[90px]' : 'w-[68px]'"
+      >
         <TimeInput
           v-if="timer?.start_time && toggleTimerInput"
           ref="timerInputRef"
           @update:model-value="updateStartTime"
           v-model.formatdate="timer.start_time"
+          @change-date="handleChangeDate"
+          show-date-picker
+          @click="cancelShowCountUp"
         />
         <CountUp
           v-else-if="timer?.start_time && !timer?.end_time && !toggleTimerInput"
@@ -75,6 +81,7 @@ const {
   setStartTime,
   timer,
   description,
+  refreshActiveTimeEntry,
 } = useTimeEntries();
 
 const { templates, createTimeEntryFromTemplate } = useTemplates();
@@ -83,6 +90,7 @@ const timerInputRef = useTemplateRef("timerInputRef");
 const countUpRef = ref();
 const toggleTimerInput = ref(false);
 const { focused: countUpFocused } = useFocus(countUpRef);
+const timeout = ref();
 
 // Transform templates into select options
 const templateOptions = computed(() => {
@@ -135,14 +143,18 @@ watch(
   { immediate: true }
 );
 
-watch(activeTimeEntry, () => {
-  if (activeTimeEntry.value) {
-    timer.value = activeTimeEntry.value as TimeEntry;
-  }
-  if (activeTimeEntry.value?.description) {
-    description.value = activeTimeEntry.value.description;
-  }
-});
+watch(
+  activeTimeEntry,
+  () => {
+    if (activeTimeEntry.value) {
+      timer.value = activeTimeEntry.value as TimeEntry;
+    }
+    if (activeTimeEntry.value?.description) {
+      description.value = activeTimeEntry.value.description;
+    }
+  },
+  { immediate: true }
+);
 
 const handleFormSubmit = async () => {
   if (timer.value) {
@@ -152,7 +164,6 @@ const handleFormSubmit = async () => {
         description: description.value,
         endTime: new Date().toISOString(),
       });
-      await refreshNuxtData("time_entries");
     } catch (error) {
       console.error(error);
     }
@@ -171,6 +182,25 @@ function updateStartTime(value: string) {
   if (timer.value) {
     setStartTime({ id: timer.value.id, startTime: value });
   }
-  toggleTimerInput.value = false;
+  showCountUp();
+}
+
+function showCountUp() {
+  timeout.value = setTimeout(() => {
+    toggleTimerInput.value = false;
+  }, 1000);
+}
+
+function cancelShowCountUp() {
+  clearTimeout(timeout.value);
+}
+
+function handleChangeDate(newDate: string) {
+  const originalStartDate = new Date(timer.value?.start_time || "");
+  const newStartDate = new Date(newDate);
+  newStartDate.setHours(originalStartDate.getHours());
+  newStartDate.setMinutes(originalStartDate.getMinutes());
+  updateStartTime(newStartDate.toISOString());
+  showCountUp();
 }
 </script>

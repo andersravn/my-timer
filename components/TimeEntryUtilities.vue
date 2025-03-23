@@ -1,8 +1,12 @@
 <template>
-  <button type="button" class="text-base" @click="newTimerFromExisting()">
+  <button type="button" class="text-slate-500" @click="newTimerFromExisting()">
     <Icon name="lucide:play" />
   </button>
-  <button type="button" class="text-base" @click="handleDeleteTimeEntries()">
+  <button
+    type="button"
+    class="text-slate-700"
+    @click="handleDeleteTimeEntries()"
+  >
     <Icon name="lucide:trash" />
   </button>
 </template>

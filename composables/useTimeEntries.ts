@@ -22,26 +22,22 @@ export function useTimeEntries() {
     }
   );
 
-  const optimisticUpdateLatestTimeEntry = (newTimeEntry: TimeEntry) => {
-    if (!timeEntries.value) return;
-    timeEntries.value = [newTimeEntry, ...timeEntries.value];
-  };
-
-  const { data: activeTimeEntry } = useAsyncData(
-    "active_time_entry",
-    async () => {
-      if (user.value) {
-        const { data } = await client
-          .from("time_entries")
-          .select("id, description, start_time")
-          .eq("user_id", user.value.id)
-          .is("end_time", null)
-          .order("start_time", { ascending: false });
-        return data?.[0];
-      }
-    },
-    { dedupe: "defer", server: false }
-  );
+  const { data: activeTimeEntry, refresh: refreshActiveTimeEntry } =
+    useAsyncData(
+      "active_time_entry",
+      async () => {
+        if (user.value) {
+          const { data } = await client
+            .from("time_entries")
+            .select("id, description, start_time")
+            .eq("user_id", user.value.id)
+            .is("end_time", null)
+            .order("start_time", { ascending: false });
+          return data?.[0];
+        }
+      },
+      { dedupe: "defer", server: false }
+    );
 
   async function setEndTime({ id, endTime }: { id: number; endTime: string }) {
     if (!user.value) return;
@@ -76,11 +72,9 @@ export function useTimeEntries() {
       .eq("id", id)
       .eq("user_id", user.value.id);
     if (response.error) throw response.error;
-    if (timer.value) {
-      optimisticUpdateLatestTimeEntry(timer.value);
-    }
     timer.value = null;
     description.value = "";
+    refreshTimeEntries();
     return response;
   }
 
@@ -100,6 +94,9 @@ export function useTimeEntries() {
       .eq("id", id)
       .eq("user_id", user.value.id);
     if (response.error) throw response.error;
+    if (timer.value) {
+      await refreshActiveTimeEntry();
+    }
     refreshTimeEntries();
     return response;
   }
@@ -141,6 +138,7 @@ export function useTimeEntries() {
     if (response.error) throw response.error;
     timer.value = response.data;
     description.value = newDescription;
+    refreshTimeEntries();
     return response;
   }
 
@@ -152,6 +150,7 @@ export function useTimeEntries() {
       .in("id", ids)
       .eq("user_id", user.value.id);
     if (response.error) throw response.error;
+    refreshTimeEntries();
     return response;
   }
 
@@ -164,9 +163,9 @@ export function useTimeEntries() {
     setDescription,
     activeTimeEntry,
     stopTimer,
-    optimisticUpdateLatestTimeEntry,
     timer,
     description,
     deleteTimeEntries,
+    refreshActiveTimeEntry,
   };
 }
