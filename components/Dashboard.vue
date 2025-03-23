@@ -13,12 +13,19 @@
         </div>
       </div>
       <div class="stats shadow" v-if="showFinishedAtTime">
-        <div class="stat" v-if="todaysEntries?.length > 0">
+        <div class="stat">
           <div class="stat-title">Finish at</div>
           <div class="stat-value min-w-[80px]">
             {{ finishAtTime }}
           </div>
-          <div class="stat-desc">{{ getBalanceDisplay() }}</div>
+          <div class="stat-desc">
+            <div>{{ getBalanceDisplay() }}</div>
+            <div>
+              Recommended work hours for today ({{
+                getRecommendedHoursForToday()
+              }})
+            </div>
+          </div>
         </div>
       </div>
       <div class="stats shadow">
@@ -190,17 +197,16 @@ const todaysEntries = computed(
 );
 
 const showFinishedAtTime = computed(() => {
-  return (
-    goalForDayOfWeek.value &&
-    elapsed.value < goalForDayOfWeek.value.duration! * 60 * 60
-  );
+  return goalForDayOfWeek.value && elapsed.value;
 });
 
 const weeklyGoal = computed(() => {
-  return goals.value?.reduce((acc, goal) => {
-    acc += goal.duration || 0;
-    return acc;
-  }, 0);
+  return (
+    goals.value?.reduce((acc, goal) => {
+      acc += goal.duration || 0;
+      return acc;
+    }, 0) || 0
+  );
 });
 
 function getYesterdaysDurationInSeconds() {
@@ -240,21 +246,20 @@ function getYesterdayBalance() {
   return yesterdayDuration - yesterdayGoalInSeconds;
 }
 
-// Calculate finish time as a computed property so it updates automatically
 const finishAtTime = computed(() => {
   const goal = goalForDayOfWeek.value;
   if (goal && goal.duration) {
     // Convert goal duration from hours to seconds
     const goalInSeconds = goal.duration * 60 * 60;
 
-    // Get balance from yesterday
-    const yesterdayBalance = getYesterdayBalance();
+    // Get balance from all previous days this week
+    const weeklyBalance = getWeeklyBalanceUntilYesterday();
 
-    // Apply yesterday's balance to today's remaining time
+    // Apply weekly balance to today's remaining time
     const adjustedRemainingSeconds =
-      goalInSeconds - elapsed.value - yesterdayBalance;
+      goalInSeconds - elapsed.value - weeklyBalance;
 
-    // If we already reached today's goal with yesterday's balance
+    // If we already reached today's goal with weekly balance
     if (adjustedRemainingSeconds <= 0) {
       return "Already done";
     }
@@ -271,20 +276,19 @@ const finishAtTime = computed(() => {
   return null;
 });
 
-// Display function for yesterday's balance
 function getBalanceDisplay() {
-  const yesterdayBalance = getYesterdayBalance();
+  const weeklyBalance = getWeeklyBalanceUntilYesterday();
 
-  if (Math.abs(yesterdayBalance) < 60) {
+  if (Math.abs(weeklyBalance) < 60) {
     return null; // Don't show for very small differences (less than a minute)
   }
 
-  const formattedBalance = formatDuration(Math.abs(yesterdayBalance));
+  const formattedBalance = formatDuration(Math.abs(weeklyBalance));
 
-  if (yesterdayBalance > 0) {
-    return `${formattedBalance} surplus from yesterday`;
+  if (weeklyBalance > 0) {
+    return `${formattedBalance} surplus this week`;
   } else {
-    return `${formattedBalance} deficit from yesterday`;
+    return `${formattedBalance} deficit this week`;
   }
 }
 
@@ -397,4 +401,96 @@ onBeforeUnmount(() => {
     refreshInterval = null;
   }
 });
+
+// Calculate weekly balance up until today
+function getWeeklyBalanceUntilYesterday() {
+  // Get current day of week (0-6, where 0 is Sunday)
+  const today = dayjs();
+  const currentDayOfWeek = today.day();
+
+  // Convert to Monday-based week (1-7, where 1 is Monday)
+  const mondayBasedDay = currentDayOfWeek === 0 ? 7 : currentDayOfWeek;
+
+  // Calculate how many days we need to check (from Monday to yesterday)
+  const daysToCheck = mondayBasedDay - 1;
+
+  if (daysToCheck <= 0) {
+    // It's Monday, no previous days in this week
+    return 0;
+  }
+
+  let totalBalance = 0;
+
+  // Loop through each day from Monday to yesterday
+  for (let i = 1; i <= daysToCheck; i++) {
+    // Calculate the date for this day
+    const checkDate = today.subtract(mondayBasedDay - i, "day");
+
+    // Get the goal for this day
+    const dayGoal = getGoalForSpecificDay(checkDate.day());
+    const dayGoalInSeconds = dayGoal?.duration ? dayGoal.duration * 60 * 60 : 0;
+
+    // Get the entries for this day
+    const dayEntries =
+      timeEntries.value?.filter(
+        (entry) =>
+          entry.start_time && dayjs(entry.start_time).isSame(checkDate, "date")
+      ) || [];
+
+    // Calculate actual work duration for this day
+    const actualWorkSeconds = getTotalTimeInSeconds(dayEntries as TimeEntry[]);
+
+    // Add this day's balance to the total
+    totalBalance += actualWorkSeconds - dayGoalInSeconds;
+  }
+
+  return totalBalance;
+}
+
+// Calculate remaining time for the week
+function getRemainingWeeklyHours() {
+  // Calculate total week goal in seconds
+  const totalWeekGoalSeconds = weeklyGoal.value * 60 * 60;
+
+  // Calculate total work done so far this week (excluding current day)
+  const workDoneThisWeekSeconds =
+    weeklyElapsedSeconds.value - currentElapsedSeconds.value;
+
+  // Calculate remaining hours for the week (excluding today)
+  return totalWeekGoalSeconds - workDoneThisWeekSeconds;
+}
+
+// Calculate recommended hours for today based on weekly goal
+function getRecommendedHoursForToday() {
+  // Get remaining days in the work week (including today)
+  const today = dayjs();
+  const currentDayOfWeek = today.day();
+
+  // Convert to Monday-based week (1-7, where 1 is Monday)
+  const mondayBasedDay = currentDayOfWeek === 0 ? 7 : currentDayOfWeek;
+
+  // Calculate remaining workdays (assuming 5-day work week, Mon-Fri)
+  const remainingWorkdays = Math.min(6 - mondayBasedDay, 5 - mondayBasedDay);
+  const remainingDays = remainingWorkdays + 1; // +1 to include today
+
+  // Get today's standard goal
+  const todayStandardGoal = goalForDayOfWeek.value?.duration || 0;
+
+  // Calculate remaining hours for the week
+  const remainingWeeklySeconds = getRemainingWeeklyHours();
+
+  // If we're on the last workday of the week, all remaining hours go to today
+  if (remainingDays === 1) {
+    return remainingWeeklySeconds / 3600;
+  }
+
+  // Otherwise, distribute the remaining hours evenly
+  // But never go below today's standard goal unless absolutely necessary
+  const recommendedHoursForToday = Math.max(
+    todayStandardGoal,
+    remainingWeeklySeconds / 3600 / remainingDays
+  );
+
+  return recommendedHoursForToday;
+}
 </script>
