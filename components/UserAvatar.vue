@@ -6,11 +6,17 @@
         <span class="text-xs uppercase">{{ userInitials }}</span>
       </div>
     </div>
-    
+
     <!-- Dropdown menu -->
-    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+    <ul
+      tabindex="0"
+      class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+    >
       <li class="menu-title">
         <span>{{ userEmail }}</span>
+      </li>
+      <li>
+        <NuxtLink href="/settings">Settings</NuxtLink>
       </li>
       <li><a @click="handleLogout">Log out</a></li>
     </ul>
@@ -37,9 +43,9 @@ const handleLogout = async () => {
   try {
     await supabase.auth.signOut();
     // Redirect to login page after logout
-    router.push('/login');
+    router.push("/login");
   } catch (error) {
-    console.error('Error logging out:', error);
+    console.error("Error logging out:", error);
   }
 };
 </script>

@@ -1,64 +1,76 @@
 <template>
-  <ClientOnly>
-    <div class="flex gap-4 flex-wrap">
-      <div class="stats shadow">
-        <div class="stat">
-          <div class="stat-title">Today</div>
-          <div class="stat-value min-w-[180px]">
-            {{ formattedTodayTime }}
-          </div>
-          <div class="stat-desc" v-if="goalForDayOfWeek">
-            {{ goalForDayOfWeek.duration }} is today's goal
-          </div>
-        </div>
-      </div>
-      <div class="stats shadow" v-if="showFinishedAtTime">
-        <div class="stat">
-          <div class="stat-title">Finish at</div>
-          <div class="stat-value min-w-[80px]">
-            {{ finishAtTime }}
-          </div>
-          <div class="stat-desc">
-            <div>{{ getBalanceDisplay() }}</div>
-            <div>
-              Recommended work hours for today ({{
-                getRecommendedHoursForToday()
-              }})
+  <div>
+    <ClientOnly>
+      <div class="flex gap-4 flex-wrap">
+        <div class="stats shadow">
+          <div class="stat">
+            <div class="stat-title">Today</div>
+            <div class="stat-value min-w-[180px]">
+              {{ formattedTodayTime }}
+            </div>
+            <div class="stat-desc" v-if="goalForDayOfWeek">
+              {{ goalForDayOfWeek.duration }} is today's goal
             </div>
           </div>
         </div>
-      </div>
-      <div class="stats shadow">
-        <div class="stat">
-          <div class="stat-title">This week</div>
-          <div class="stat-value min-w-[100px]">
-            {{ formattedWeeklyTime }}
+        <div class="stats shadow" v-if="showFinishedAtTime">
+          <div class="stat">
+            <div class="stat-title">Finish at</div>
+            <div class="stat-value min-w-[80px]">
+              {{ finishAtTime }}
+            </div>
+            <div class="stat-desc">
+              <div>{{ getBalanceDisplay() }}</div>
+              <div>
+                Recommended work hours for today:
+                {{ getRecommendedHoursForToday().toFixed(1) }}
+              </div>
+              <div v-if="lunchSettings.enableLunchBreak && isLunchIncluded">
+                <i class="fas fa-utensils text-xs mr-1"></i>
+                Includes {{ lunchSettings.lunchDurationMinutes }} min lunch at
+                {{ lunchSettings.lunchStartTime }}
+              </div>
+            </div>
           </div>
-          <div class="stat-desc">Goal: {{ weeklyGoal }} hours</div>
+        </div>
+        <div class="stats shadow">
+          <div class="stat">
+            <div class="stat-title">This week</div>
+            <div class="stat-value min-w-[100px]">
+              {{ formattedWeeklyTime }}
+            </div>
+            <div class="stat-desc">Goal: {{ weeklyGoal }} hours</div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <template #fallback>
-      <div class="flex gap-4">
-        <div
-          v-for="index in 3"
-          class="w-[180px] rounded h-[112px] animate-pulse bg-neutral-content/80"
-        ></div>
-      </div>
-    </template>
-  </ClientOnly>
+      <template #fallback>
+        <div class="flex gap-4">
+          <div
+            v-for="index in 3"
+            class="w-[180px] rounded h-[112px] animate-pulse bg-neutral-content/80"
+          ></div>
+        </div>
+      </template>
+    </ClientOnly>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { useTimeEntries } from "~/composables/useTimeEntries";
 import { formatDuration } from "~/utils/time";
+import { useLunchBreak } from "~/composables/useLunchBreak";
 import type { TimeEntry } from "~/types/timer.types";
+import LunchBreakSettings from "~/components/LunchBreakSettings.vue";
 
 const { timeEntries, timer } = useTimeEntries();
 const { goals } = useGoals();
+const { lunchSettings, calculateLunchBreakAdjustment } = useLunchBreak();
 
 const dayjs = useDayjs();
+
+// Lunch break inclusion flag
+const isLunchIncluded = ref(false);
 
 // Reactive references for live tracking
 const currentElapsedSeconds = ref(0);
@@ -209,199 +221,6 @@ const weeklyGoal = computed(() => {
   );
 });
 
-function getYesterdaysDurationInSeconds() {
-  const yesterdaysEntries = timeEntries.value?.filter((entry) =>
-    entry.start_time?.includes(
-      dayjs().subtract(1, "day").toISOString().split("T")[0]
-    )
-  );
-  return getTotalTimeInSeconds(yesterdaysEntries as TimeEntry[]);
-}
-
-// Helper function to get goal for a specific day
-function getGoalForSpecificDay(dayNumber: number) {
-  return goals.value?.find((goal) => {
-    if (goal.day === "daily") {
-      return true;
-    }
-    return goal.day === dayNumber.toString();
-  });
-}
-
-// Calculate yesterday's balance (difference between time worked and goal)
-function getYesterdayBalance() {
-  // Get yesterday's date
-  const yesterday = dayjs().subtract(1, "day");
-
-  // Get yesterday's goal
-  const yesterdayGoal = getGoalForSpecificDay(yesterday.get("day"));
-  const yesterdayGoalInSeconds = yesterdayGoal?.duration
-    ? yesterdayGoal.duration * 60 * 60
-    : 0;
-
-  // Get yesterday's actual duration
-  const yesterdayDuration = getYesterdaysDurationInSeconds();
-
-  // Calculate the balance (positive means surplus, negative means deficit)
-  return yesterdayDuration - yesterdayGoalInSeconds;
-}
-
-const finishAtTime = computed(() => {
-  const goal = goalForDayOfWeek.value;
-  if (goal && goal.duration) {
-    // Convert goal duration from hours to seconds
-    const goalInSeconds = goal.duration * 60 * 60;
-
-    // Get balance from all previous days this week
-    const weeklyBalance = getWeeklyBalanceUntilYesterday();
-
-    // Apply weekly balance to today's remaining time
-    const adjustedRemainingSeconds =
-      goalInSeconds - elapsed.value - weeklyBalance;
-
-    // If we already reached today's goal with weekly balance
-    if (adjustedRemainingSeconds <= 0) {
-      return "Already done";
-    }
-
-    // Calculate finish time (current time + adjusted remaining seconds)
-    const end = new Date(Date.now() + adjustedRemainingSeconds * 1000);
-
-    return end.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
-  }
-  return null;
-});
-
-function getBalanceDisplay() {
-  const weeklyBalance = getWeeklyBalanceUntilYesterday();
-
-  if (Math.abs(weeklyBalance) < 60) {
-    return null; // Don't show for very small differences (less than a minute)
-  }
-
-  const formattedBalance = formatDuration(Math.abs(weeklyBalance));
-
-  if (weeklyBalance > 0) {
-    return `${formattedBalance} surplus this week`;
-  } else {
-    return `${formattedBalance} deficit this week`;
-  }
-}
-
-// Start or stop interval based on active timer status
-function manageInterval() {
-  if (hasActiveTimer.value && !intervalId) {
-    // Start the interval if there's an active timer but no interval
-    intervalId = setInterval(updateLiveTimers, 1000);
-  } else if (!hasActiveTimer.value && intervalId) {
-    // Stop the interval if there's no active timer but an interval is running
-    clearInterval(intervalId);
-    intervalId = null;
-  }
-}
-
-// Setup for component lifecycle
-let refreshInterval: NodeJS.Timeout | null = null;
-
-onMounted(() => {
-  // Initial update for entries
-  updateLiveTimers();
-
-  // Setup interval management
-  manageInterval();
-
-  // Force an update every 10 seconds even without active timer
-  // This ensures data stays fresh if updates happen in another tab/device
-  refreshInterval = setInterval(() => {
-    updateLiveTimers();
-  }, 10000);
-});
-
-// Watch timeEntries collection for changes (detects new/completed entries)
-watch(
-  [timeEntries],
-  () => {
-    // Force immediate update when timeEntries change
-    updateLiveTimers();
-  },
-  { immediate: true }
-);
-
-// Watch BOTH activeTimeEntry and timer for changes (handles active timer state)
-watch(
-  [timer],
-  () => {
-    // Force immediate update
-    updateLiveTimers();
-
-    // Manage the interval
-    manageInterval();
-
-    // Additionally force an update after a small delay to catch any async changes
-    setTimeout(() => {
-      updateLiveTimers();
-      manageInterval();
-    }, 50);
-  },
-  { immediate: true, deep: true }
-);
-
-// Direct watch on timer.value.end_time to detect timer stopping
-watch(
-  () => timer.value?.end_time,
-  (newEndTime) => {
-    // If the timer now has an end time, it's been stopped
-    if (newEndTime) {
-      // Update immediately
-      updateLiveTimers();
-
-      // Also ensure the interval is stopped if needed
-      if (intervalId && !hasActiveTimer.value) {
-        clearInterval(intervalId);
-        intervalId = null;
-      }
-    }
-  },
-  { immediate: true }
-);
-
-// Also watch the computed hasActiveTimer directly to handle edge cases
-watch(
-  hasActiveTimer,
-  (newValue) => {
-    // If there's now an active timer but no interval
-    if (newValue && !intervalId) {
-      intervalId = setInterval(updateLiveTimers, 1000);
-    }
-    // If there's no active timer but an interval is running
-    else if (!newValue && intervalId) {
-      clearInterval(intervalId);
-      intervalId = null;
-
-      // Important: Update one last time to ensure we have the final state
-      updateLiveTimers();
-    }
-  },
-  { immediate: true }
-);
-
-// Clean up intervals when component unmounts
-onBeforeUnmount(() => {
-  if (intervalId) {
-    clearInterval(intervalId);
-    intervalId = null;
-  }
-
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-    refreshInterval = null;
-  }
-});
-
 // Calculate weekly balance up until today
 function getWeeklyBalanceUntilYesterday() {
   // Get current day of week (0-6, where 0 is Sunday)
@@ -447,6 +266,16 @@ function getWeeklyBalanceUntilYesterday() {
   return totalBalance;
 }
 
+// Helper function to get goal for a specific day
+function getGoalForSpecificDay(dayNumber: number) {
+  return goals.value?.find((goal) => {
+    if (goal.day === "daily") {
+      return true;
+    }
+    return goal.day === dayNumber.toString();
+  });
+}
+
 // Calculate remaining time for the week
 function getRemainingWeeklyHours() {
   // Calculate total week goal in seconds
@@ -457,7 +286,7 @@ function getRemainingWeeklyHours() {
     weeklyElapsedSeconds.value - currentElapsedSeconds.value;
 
   // Calculate remaining hours for the week (excluding today)
-  return totalWeekGoalSeconds - workDoneThisWeekSeconds;
+  return (totalWeekGoalSeconds - workDoneThisWeekSeconds) / 3600;
 }
 
 // Calculate recommended hours for today based on weekly goal
@@ -477,20 +306,184 @@ function getRecommendedHoursForToday() {
   const todayStandardGoal = goalForDayOfWeek.value?.duration || 0;
 
   // Calculate remaining hours for the week
-  const remainingWeeklySeconds = getRemainingWeeklyHours();
+  const remainingWeeklyHours = getRemainingWeeklyHours();
 
   // If we're on the last workday of the week, all remaining hours go to today
   if (remainingDays === 1) {
-    return remainingWeeklySeconds / 3600;
+    return remainingWeeklyHours;
   }
 
   // Otherwise, distribute the remaining hours evenly
   // But never go below today's standard goal unless absolutely necessary
   const recommendedHoursForToday = Math.max(
     todayStandardGoal,
-    remainingWeeklySeconds / 3600 / remainingDays
+    remainingWeeklyHours / remainingDays
   );
 
   return recommendedHoursForToday;
 }
+
+// Updated finish time calculation with lunch break
+const finishAtTime = computed(() => {
+  const goal = goalForDayOfWeek.value;
+  if (goal && goal.duration) {
+    // Convert goal duration from hours to seconds
+    const goalInSeconds = goal.duration * 60 * 60;
+
+    // Get balance from all previous days this week
+    const weeklyBalance = getWeeklyBalanceUntilYesterday();
+
+    // Apply weekly balance to today's remaining time
+    const adjustedRemainingSeconds =
+      goalInSeconds - elapsed.value - weeklyBalance;
+
+    // If we already reached today's goal with weekly balance
+    if (adjustedRemainingSeconds <= 0) {
+      isLunchIncluded.value = false;
+      return "Already done";
+    }
+
+    // Get current time for lunch break calculation
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+
+    // Convert current time to minutes since midnight for easier comparison
+    const currentTimeInMinutes = currentHour * 60 + currentMinute;
+
+    // Calculate work end time in minutes (without lunch)
+    const workEndTimeInMinutes =
+      currentTimeInMinutes + adjustedRemainingSeconds / 60;
+
+    // Calculate lunch break adjustment
+    const lunchBreakAdjustment = calculateLunchBreakAdjustment(
+      currentTimeInMinutes,
+      workEndTimeInMinutes
+    );
+
+    // Set lunch included flag for UI
+    isLunchIncluded.value = lunchBreakAdjustment > 0;
+
+    // Calculate finish time with lunch break considered
+    const totalRemainingSeconds =
+      adjustedRemainingSeconds + lunchBreakAdjustment;
+    const end = new Date(Date.now() + totalRemainingSeconds * 1000);
+
+    return end.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+  }
+  return null;
+});
+
+// Updated balance display function
+function getBalanceDisplay() {
+  const weeklyBalance = getWeeklyBalanceUntilYesterday();
+
+  if (Math.abs(weeklyBalance) < 60) {
+    return null; // Don't show for very small differences (less than a minute)
+  }
+
+  const formattedBalance = formatDuration(Math.abs(weeklyBalance));
+
+  if (weeklyBalance > 0) {
+    return `${formattedBalance} surplus this week`;
+  } else {
+    return `${formattedBalance} deficit this week`;
+  }
+}
+
+// Start or stop interval based on active timer status
+function manageInterval() {
+  if (hasActiveTimer.value && !intervalId) {
+    // Start the interval if there's an active timer but no interval
+    intervalId = setInterval(updateLiveTimers, 1000);
+  } else if (!hasActiveTimer.value && intervalId) {
+    // Stop the interval if there's no active timer but an interval is running
+    clearInterval(intervalId);
+    intervalId = null;
+  }
+}
+
+// Setup for component lifecycle
+let refreshInterval: NodeJS.Timeout | null = null;
+
+onMounted(() => {
+  // Initial update for entries
+  updateLiveTimers();
+
+  // Setup interval management
+  manageInterval();
+
+  // Force an update every 10 seconds even without active timer
+  // This ensures data stays fresh if updates happen in another tab/device
+  refreshInterval = setInterval(() => {
+    updateLiveTimers();
+  }, 10000);
+});
+
+// Cleanup on component unmount
+onBeforeUnmount(() => {
+  if (intervalId) {
+    clearInterval(intervalId);
+    intervalId = null;
+  }
+
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+    refreshInterval = null;
+  }
+});
+
+// Existing watchers and other code...
+watch(
+  [timeEntries],
+  () => {
+    updateLiveTimers();
+  },
+  { immediate: true }
+);
+
+watch(
+  [timer],
+  () => {
+    updateLiveTimers();
+    manageInterval();
+    setTimeout(() => {
+      updateLiveTimers();
+      manageInterval();
+    }, 50);
+  },
+  { immediate: true, deep: true }
+);
+
+watch(
+  () => timer.value?.end_time,
+  (newEndTime) => {
+    if (newEndTime) {
+      updateLiveTimers();
+      if (intervalId && !hasActiveTimer.value) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  hasActiveTimer,
+  (newValue) => {
+    if (newValue && !intervalId) {
+      intervalId = setInterval(updateLiveTimers, 1000);
+    } else if (!newValue && intervalId) {
+      clearInterval(intervalId);
+      intervalId = null;
+      updateLiveTimers();
+    }
+  },
+  { immediate: true }
+);
 </script>
