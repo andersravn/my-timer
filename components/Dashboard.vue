@@ -61,7 +61,6 @@ import { useTimeEntries } from "~/composables/useTimeEntries";
 import { formatDuration } from "~/utils/time";
 import { useLunchBreak } from "~/composables/useLunchBreak";
 import type { TimeEntry } from "~/types/timer.types";
-import LunchBreakSettings from "~/components/LunchBreakSettings.vue";
 
 const { timeEntries, timer } = useTimeEntries();
 const { goals } = useGoals();
