@@ -13,10 +13,20 @@
       v-if="showDatePicker"
       class="size-4 relative inline-block ml-2 text-slate-500"
     >
-      <span class="absolute inset-0 size-full">
+      <span
+        class="absolute inset-0 size-full"
+        @keydown.enter.prevent="openDatePicker"
+        tabindex="0"
+      >
         <Icon name="lucide:calendar" />
       </span>
-      <input type="date" class="datepicker-input" @change="handleDateChange" />
+      <input
+        ref="dateInputRef"
+        tabindex="-1"
+        type="date"
+        class="datepicker-input"
+        @change="handleDateChange"
+      />
     </span>
   </div>
 </template>
@@ -28,6 +38,7 @@ const props = defineProps({
   showDatePicker: { default: false, type: Boolean },
 });
 
+const dateInputRef = ref("dateInputRef");
 const inputRef = useTemplateRef("input");
 defineExpose({
   inputRef,
@@ -41,6 +52,10 @@ const emit = defineEmits<{
 
 function handleDateChange(e: any) {
   emit("changeDate", e.target.value);
+}
+
+function openDatePicker() {
+  dateInputRef.value.showPicker();
 }
 
 function handleInput(e: any) {
