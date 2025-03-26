@@ -11,11 +11,16 @@ export function useTimeEntries() {
     "time_entries",
     async () => {
       if (user.value) {
+        // Calculate date from 2 weeks ago
+        const twoWeeksAgo = new Date();
+        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 21);
+
         const { data } = await client
           .from("time_entries")
           .select("id, description, start_time, end_time")
           .eq("user_id", user.value.id)
           .not("end_time", "is", null)
+          .gte("start_time", twoWeeksAgo.toISOString())
           .order("start_time", { ascending: false });
         return data;
       }
