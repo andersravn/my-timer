@@ -1,6 +1,10 @@
 <template>
   <div class="shadow-lg mb-4 p-2">
-    <form @submit.prevent="handleFormSubmit" class="flex items-center gap-x-2">
+    <form
+      @keydown.enter.prevent
+      @submit.prevent="handleFormSubmit"
+      class="flex items-center gap-x-2"
+    >
       <input
         type="text"
         v-model="description"
@@ -72,6 +76,7 @@
 </template>
 
 <script setup lang="ts">
+import type { ShallowRef } from "vue";
 import { type TimeEntry } from "~/types/timer.types";
 
 const {
@@ -81,7 +86,6 @@ const {
   setStartTime,
   timer,
   description,
-  refreshActiveTimeEntry,
 } = useTimeEntries();
 
 const { templates, createTimeEntryFromTemplate } = useTemplates();
@@ -156,7 +160,8 @@ watch(
   { immediate: true }
 );
 
-const handleFormSubmit = async () => {
+const handleFormSubmit = async (e: any) => {
+  console.log(e);
   if (timer.value) {
     try {
       stopTimer({
