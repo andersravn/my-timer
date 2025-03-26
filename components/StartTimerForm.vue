@@ -1,15 +1,11 @@
 <template>
   <div class="shadow-lg mb-4 p-2">
-    <form
-      @keydown.enter.prevent
-      @submit.prevent="handleFormSubmit"
-      class="flex items-center gap-x-2"
-    >
-      <input
-        type="text"
+    <form @submit.prevent="handleFormSubmit" class="flex items-center gap-x-2">
+      <AutocompleteInput
         v-model="description"
-        class="input input-bordered w-full"
         placeholder="Description..."
+        :suggestions="uniqueDescriptions"
+        inputClass="bg-red"
       />
       <div
         class="flex-shrink-0"
@@ -76,7 +72,6 @@
 </template>
 
 <script setup lang="ts">
-import type { ShallowRef } from "vue";
 import { type TimeEntry } from "~/types/timer.types";
 
 const {
@@ -86,6 +81,7 @@ const {
   setStartTime,
   timer,
   description,
+  timeEntries,
 } = useTimeEntries();
 
 const { templates, createTimeEntryFromTemplate } = useTemplates();
@@ -95,6 +91,21 @@ const countUpRef = ref();
 const toggleTimerInput = ref(false);
 const { focused: countUpFocused } = useFocus(countUpRef);
 const timeout = ref();
+
+const uniqueDescriptions = computed(() => {
+  const uniqueDescriptions: string[] = [];
+  if (timeEntries.value) {
+    for (const entry of timeEntries.value) {
+      if (
+        entry.description &&
+        !uniqueDescriptions.includes(entry.description)
+      ) {
+        uniqueDescriptions.push(entry.description);
+      }
+    }
+  }
+  return uniqueDescriptions;
+});
 
 // Transform templates into select options
 const templateOptions = computed(() => {
@@ -161,7 +172,6 @@ watch(
 );
 
 const handleFormSubmit = async (e: any) => {
-  console.log(e);
   if (timer.value) {
     try {
       stopTimer({
