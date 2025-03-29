@@ -28,6 +28,7 @@ export default defineNuxtConfig({
   dayjs: {
     defaultLocale: "da",
     locales: ["da"],
+    plugins: ["duration"],
   },
   // Add runtime config for app URL
   runtimeConfig: {
