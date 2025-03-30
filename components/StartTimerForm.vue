@@ -91,6 +91,10 @@ const countUpRef = ref();
 const toggleTimerInput = ref(false);
 const { focused: countUpFocused } = useFocus(countUpRef);
 const timeout = ref();
+const favicon = computed(() =>
+  timer.value ? "hourglass_flowing.png" : "hourglass.png"
+);
+useFavicon(favicon, { rel: "icon" });
 
 const uniqueDescriptions = computed(() => {
   const uniqueDescriptions: string[] = [];
