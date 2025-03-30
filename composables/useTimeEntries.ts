@@ -2,28 +2,36 @@ import type { TimeEntry } from "~/types/timer.types";
 
 const timer = ref<TimeEntry | null | undefined>(null);
 const description = ref("");
+// Add state for managing the number of weeks to load
+const weeksToLoad = ref(2);
 
 export function useTimeEntries() {
   const client = useSupabaseClient();
   const user = useSupabaseUser();
+  const isLoadingMore = ref(false);
 
   const { data: timeEntries, refresh: refreshTimeEntries } = useAsyncData(
     "time_entries",
     async () => {
       if (user.value) {
-        // Calculate date from 2 weeks ago
-        const twoWeeksAgo = new Date();
-        twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 21);
-
+        // Calculate date based on the number of weeks to load
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - weeksToLoad.value * 7);
+        isLoadingMore.value = true;
         const { data } = await client
           .from("time_entries")
           .select("id, description, start_time, end_time")
           .eq("user_id", user.value.id)
           .not("end_time", "is", null)
-          .gte("start_time", twoWeeksAgo.toISOString())
+          .gte("start_time", startDate.toISOString())
           .order("start_time", { ascending: false });
+
+        isLoadingMore.value = false;
         return data;
       }
+    },
+    {
+      watch: [weeksToLoad], // Re-run when weeksToLoad changes
     }
   );
 
@@ -43,6 +51,10 @@ export function useTimeEntries() {
       },
       { dedupe: "defer", server: false }
     );
+
+  async function loadMoreWeeks() {
+    weeksToLoad.value += 1;
+  }
 
   async function setEndTime({ id, endTime }: { id: number; endTime: string }) {
     if (!user.value) return;
@@ -172,5 +184,8 @@ export function useTimeEntries() {
     description,
     deleteTimeEntries,
     refreshActiveTimeEntry,
+    loadMoreWeeks,
+    isLoadingMore,
+    weeksToLoad,
   };
 }

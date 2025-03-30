@@ -3,7 +3,8 @@ import type { TimeEntryBase } from "~/types/timer.types";
 
 const dayjs = useDayjs();
 
-const { timeEntries } = useTimeEntries();
+const { timeEntries, loadMoreWeeks, isLoadingMore, weeksToLoad } =
+  useTimeEntries();
 
 const timeEntriesByDay = computed(() => {
   return timeEntries.value?.reduce((acc, entry) => {
@@ -40,6 +41,13 @@ function calculateDayTotal(entries: TimeEntryBase[]) {
 
   return dayjs.duration(totalMilliseconds).format("HH:mm:ss");
 }
+
+// Format date range for the "Load More" button
+const dateRangeText = computed(() => {
+  const endDate = dayjs().subtract(weeksToLoad.value, "weeks");
+  const startDate = dayjs().subtract(weeksToLoad.value + 1, "weeks");
+  return `${startDate.format("MMM D")} - ${endDate.format("MMM D")}`;
+});
 </script>
 
 <template>
@@ -79,4 +87,16 @@ function calculateDayTotal(entries: TimeEntryBase[]) {
       </ul>
     </li>
   </ul>
+  <div class="w-full my-4 flex justify-center">
+    <button
+      @click="loadMoreWeeks"
+      class="btn btn-secondary"
+      :disabled="isLoadingMore"
+    >
+      <span v-if="isLoadingMore">
+        <span class="inline-block animate-spin mr-2">↻</span> Loading...
+      </span>
+      <span v-else> Load more ({{ dateRangeText }}) </span>
+    </button>
+  </div>
 </template>
