@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { TimeEntryBase } from "~/types/timer.types";
+import duration from "dayjs/plugin/duration";
 
 const dayjs = useDayjs();
 
